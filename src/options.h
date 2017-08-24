@@ -346,6 +346,9 @@ struct options
 
   const char *homedir;          /* the homedir of the running process */
   const char *wgetrcfile;       /* the wgetrc file to be loaded */
+
+  char *filter_cmd;             /* Shell command through which to filter
+                                   fetched files after saving. */
 };
 
 extern struct options opt;

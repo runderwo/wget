@@ -39,6 +39,7 @@ as that of the covered work.  */
 #include <time.h>
 #include <locale.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 #include "hash.h"
 #include "http.h"
@@ -4194,6 +4195,66 @@ gethttp (const struct url *u, struct url *original_url, struct http_stat *hs,
 
   if (!output_stream)
     fclose (fp);
+
+  if (opt.filter_cmd)
+    {
+      int pid = fork();
+      if (pid == -1)
+          logprintf (LOG_ALWAYS, "Failed to fork filter process!\n");
+      else if (pid == 0)
+        {
+          const int ARG_MAX = 1024;
+          char filter_cmd[ARG_MAX+1];
+          filter_cmd[0] = '\0';
+          filter_cmd[ARG_MAX] = '\0';
+          int count = 0;
+          bool overflow = 0;
+
+          char *s = opt.filter_cmd;
+          char *d = filter_cmd;
+
+          do {
+            if (*s != '\0' && *s == '{' && *(s+1) == '}')
+              {
+                *d = '\0';
+                strncat (filter_cmd, hs->local_file, ARG_MAX);
+                if (filter_cmd[ARG_MAX] != '\0')
+                  overflow = true;
+                filter_cmd[ARG_MAX] = '\0';
+                d = &filter_cmd[strlen (filter_cmd)];
+                count++;
+                s += 2;
+              }
+            else
+              {
+                *d++ = *s++;
+                *d = '\0';
+              }
+          } while (*s != '\0' && strlen(filter_cmd) < ARG_MAX);
+
+          if (overflow)
+            logprintf (LOG_ALWAYS, "Filter arguments overflowed! Maximum length is %d\n", ARG_MAX);
+
+          if (count == 0)
+            {
+              strncat (filter_cmd, " ", ARG_MAX);
+              strncat (filter_cmd, hs->local_file, ARG_MAX);
+              filter_cmd[ARG_MAX] = '\0';
+            }
+
+          logprintf (LOG_VERBOSE, "Exec filter program (%s)\n", filter_cmd);
+
+          if (execlp("sh", "sh", "-c", filter_cmd, hs->local_file, (char*) NULL) == -1)
+            logprintf (LOG_ALWAYS, "Failed to exec filter program (%s): %s\n", filter_cmd, strerror(errno));
+        }
+      else
+        {
+          logprintf (LOG_VERBOSE, "Waiting for filtering to finish.\n");
+          int status;
+          if (waitpid (pid, &status, 0) == -1)
+            logprintf (LOG_ALWAYS, "Error waiting for filter process: %s\n", strerror(errno));
+        }
+    }
 
   retval = err;
 

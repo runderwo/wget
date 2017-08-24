@@ -316,6 +316,7 @@ static struct cmdline_option option_data[] =
     { "exclude-directories", 'X', OPT_VALUE, "excludedirectories", -1 },
     { "exclude-domains", 0, OPT_VALUE, "excludedomains", -1 },
     { "execute", 'e', OPT__EXECUTE, NULL, required_argument },
+    { "filter-cmd", 0, OPT_VALUE, "filtercmd", -1 },
     { "follow-ftp", 0, OPT_BOOLEAN, "followftp", -1 },
     { "follow-tags", 0, OPT_VALUE, "followtags", -1 },
     { "force-directories", 'x', OPT_BOOLEAN, "dirstruct", -1 },

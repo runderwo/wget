@@ -1782,6 +1782,14 @@ generally not recommended, as it can force retries even in cases where
 the server is actually trying to decrease its load. Please use wisely
 and only if you know what you are doing.
 
+@cindex Shell filters
+@item --filter-cmd=@var{'shellcmd'}
+The supplied @code{'shellcmd'} is executed for each file downloaded.
+If @code{'shellcmd'} contains any @code{@{@}} sequences, those sequences
+will be replaced with the downloaded filename.  If there are no such
+sequences, the downloaded filename will simply be appended to
+@code{'shellcmd'}.
+
 @end table
 
 @node HTTPS (SSL/TLS) Options, FTP Options, HTTP Options, Invoking

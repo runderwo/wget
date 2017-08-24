@@ -200,6 +200,7 @@ static const struct {
 #endif
   { "excludedirectories", &opt.excludes,        cmd_directory_vector },
   { "excludedomains",   &opt.exclude_domains,   cmd_vector },
+  { "filtercmd",        &opt.filter_cmd,        cmd_string },
   { "followftp",        &opt.follow_ftp,        cmd_boolean },
   { "followtags",       &opt.follow_tags,       cmd_vector },
   { "forcehtml",        &opt.force_html,        cmd_boolean },
